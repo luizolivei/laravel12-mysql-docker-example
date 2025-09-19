@@ -1,2 +1,6 @@
-# laravel12-mysql-docker-example
-repo apenas para revisar as tecnologias
+# Como subir
+
+
+docker compose up -d --build
+
+
