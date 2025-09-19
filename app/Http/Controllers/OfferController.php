@@ -9,13 +9,11 @@ use Illuminate\Routing\Attributes\Post;
 
 class OfferController extends Controller
 {
-    #[Get('/api/offers')]
     public function index()
     {
         return response()->json(Offer::all());
     }
 
-    #[Post('/api/offers')]
     public function store(Request $request)
     {
         $validated = $request->validate([
