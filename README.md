@@ -1,8 +1,3 @@
-# Como subir
-
-Este projeto agora é totalmente executado dentro de containers Docker. Você não
-precisa ter PHP, Composer ou Node instalados localmente: o Docker cuida de tudo.
-
 ## Requisitos
 
 - Docker
@@ -30,8 +25,10 @@ precisa ter PHP, Composer ou Node instalados localmente: o Docker cuida de tudo.
    docker compose exec app php artisan migrate
    ```
 
-3. Quando quiser desligar tudo:
+3. Problema encontrado:
+o vite nao esta gerando no dockerfile, precisa configurar para dar npm install e npm run build
 
+Para desligar:
    ```bash
    docker compose down
    ```
