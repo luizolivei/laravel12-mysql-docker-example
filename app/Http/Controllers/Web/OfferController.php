@@ -1,58 +1,48 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Web;
 
+use App\Application\Offer\CreateOffer;
+use App\Application\Offer\DeleteOffer;
+use App\Application\Offer\ListOffers;
 use App\DTO\Offer\OfferData;
 use App\DTO\Offer\OfferFilterData;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Offer\OfferIndexRequest;
 use App\Http\Requests\Offer\OfferStoreRequest;
 use App\Http\Resources\OfferResource;
 use App\Models\Offer;
-use App\Services\Offer\OfferService;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
-use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 class OfferController extends Controller
 {
     public function __construct(
-        private readonly OfferService $offerService,
+        private readonly ListOffers $listOffers,
+        private readonly CreateOffer $createOffer,
+        private readonly DeleteOffer $deleteOffer,
     ) {
     }
 
-    /**
-     * Display the offers list page or return the offers data for API clients.
-     */
-    public function index(OfferIndexRequest $request): Response|JsonResponse
+    public function index(OfferIndexRequest $request): Response
     {
         $filters = OfferFilterData::fromArray($request->validated());
 
-        $offers = $this->offerService->list($filters);
-
-        if ($request->wantsJson()) {
-            return OfferResource::collection($offers);
-        }
+        $offers = $this->listOffers->execute($filters);
 
         return Inertia::render('TestPage', [
-            'offers' => $offers,
+            'offers' => OfferResource::collection($offers)->resolve(),
             'filters' => [
                 'search' => $filters->search,
             ],
         ]);
     }
 
-    public function store(OfferStoreRequest $request): RedirectResponse|JsonResponse
+    public function store(OfferStoreRequest $request): RedirectResponse
     {
-        $offer = $this->offerService->create(OfferData::fromArray($request->validated()));
-
-        if ($request->wantsJson()) {
-            return OfferResource::make($offer)
-                ->response()
-                ->setStatusCode(HttpResponse::HTTP_CREATED);
-        }
+        $this->createOffer->execute(OfferData::fromArray($request->validated()));
 
         $parameters = array_filter(
             ['search' => $request->input('search')],
@@ -63,13 +53,9 @@ class OfferController extends Controller
             ->with('success', 'Oferta criada com sucesso.');
     }
 
-    public function destroy(Request $request, Offer $offer): RedirectResponse|JsonResponse
+    public function destroy(Request $request, Offer $offer): RedirectResponse
     {
-        $this->offerService->delete($offer);
-
-        if ($request->wantsJson()) {
-            return response()->noContent();
-        }
+        $this->deleteOffer->execute($offer);
 
         $parameters = array_filter(
             ['search' => $request->input('search')],
