@@ -13,6 +13,13 @@ return new class extends Migration
     {
         Schema::create('offers', function (Blueprint $table) {
             $table->id();
+            $table->string('title');
+            $table->text('description');
+            $table->decimal('price', 10, 2);
+            $table->string('currency', 3)->default('BRL');
+            $table->enum('status', ['draft', 'active', 'expired'])->default('draft');
+            $table->timestamp('start_date');
+            $table->timestamp('end_date')->nullable();
             $table->timestamps();
         });
     }
