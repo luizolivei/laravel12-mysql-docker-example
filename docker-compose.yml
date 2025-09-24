@@ -16,6 +16,8 @@ services:
             - "8000:8000"
             - "9003:9003"
         command: ["/bin/sh", "/var/www/docker/app/start-container.sh"]
+        extra_hosts:
+        - "host.docker.internal:host-gateway"
         depends_on:
             mysql:
                 condition: service_healthy
