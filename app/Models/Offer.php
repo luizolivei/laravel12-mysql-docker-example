@@ -11,7 +11,6 @@ class Offer extends Model
 
     protected $table = 'offers';
 
-    // Campos que podem ser preenchidos em massa
     protected $fillable = [
         'title',
         'description',
@@ -22,9 +21,11 @@ class Offer extends Model
         'end_date',
     ];
 
-    // Se quiser tratar datas como objetos Carbon
-    protected $dates = [
-        'start_date',
-        'end_date',
+    protected $casts = [
+        'price' => 'float',
+        'start_date' => 'datetime',
+        'end_date' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 }

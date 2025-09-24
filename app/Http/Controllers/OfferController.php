@@ -2,34 +2,36 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Offer;
-use Illuminate\Routing\Attributes\Get;
-use Illuminate\Routing\Attributes\Post;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class OfferController extends Controller
 {
-    public function index()
+    /**
+     * Display the offers list page.
+     */
+    public function __invoke(): Response
     {
-        xdebug_break();
-        $teste = response()->json(Offer::all());
-        return $teste;
-    }
+        $offers = Offer::query()
+            ->orderByDesc('start_date')
+            ->get()
+            ->map(fn (Offer $offer) => [
+                'id' => $offer->id,
+                'title' => $offer->title,
+                'description' => $offer->description,
+                'price' => $offer->price,
+                'currency' => $offer->currency,
+                'status' => $offer->status,
+                'start_date' => $offer->start_date?->toISOString(),
+                'end_date' => $offer->end_date?->toISOString(),
+                'created_at' => $offer->created_at?->toISOString(),
+                'updated_at' => $offer->updated_at?->toISOString(),
+            ])
+            ->values();
 
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'title' => 'required|string',
-            'description' => 'nullable|string',
-            'price' => 'required|numeric',
-            'currency' => 'required|string|max:3',
-            'status' => 'required|string',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date',
+        return Inertia::render('TestPage', [
+            'offers' => $offers,
         ]);
-
-        $offer = Offer::create($validated);
-
-        return response()->json($offer, 201);
     }
 }
