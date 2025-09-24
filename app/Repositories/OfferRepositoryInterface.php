@@ -15,4 +15,6 @@ interface OfferRepositoryInterface
     public function create(array $attributes): Offer;
 
     public function delete(Offer $offer): void;
+
+    public function findLatest(): ?Offer;
 }

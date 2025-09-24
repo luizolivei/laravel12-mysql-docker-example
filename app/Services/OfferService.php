@@ -36,4 +36,26 @@ class OfferService
     {
         $this->offers->delete($offer);
     }
+
+    public function cloneLatestWithDiscount(float $discountPercentage): ?Offer
+    {
+        $latestOffer = $this->offers->findLatest();
+
+        if ($latestOffer === null) {
+            return null;
+        }
+
+        $discountRate = max(0.0, $discountPercentage) / 100;
+        $discountedPrice = max(0.0, round($latestOffer->price * (1 - $discountRate), 2));
+
+        $payload = collect($latestOffer->getFillable())
+            ->mapWithKeys(fn (string $attribute) => [
+                $attribute => $latestOffer->getAttribute($attribute),
+            ])
+            ->toArray();
+
+        $payload['price'] = $discountedPrice;
+
+        return $this->offers->create($payload);
+    }
 }
