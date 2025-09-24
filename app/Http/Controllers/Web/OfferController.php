@@ -2,16 +2,12 @@
 
 namespace App\Http\Controllers\Web;
 
-use App\Application\Offer\CreateOffer;
-use App\Application\Offer\DeleteOffer;
-use App\Application\Offer\ListOffers;
-use App\DTO\Offer\OfferData;
-use App\DTO\Offer\OfferFilterData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Offer\OfferIndexRequest;
 use App\Http\Requests\Offer\OfferStoreRequest;
 use App\Http\Resources\OfferResource;
 use App\Models\Offer;
+use App\Services\OfferService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -20,29 +16,27 @@ use Inertia\Response;
 class OfferController extends Controller
 {
     public function __construct(
-        private readonly ListOffers $listOffers,
-        private readonly CreateOffer $createOffer,
-        private readonly DeleteOffer $deleteOffer,
+        private readonly OfferService $offers,
     ) {
     }
 
     public function index(OfferIndexRequest $request): Response
     {
-        $filters = OfferFilterData::fromArray($request->validated());
+        $validated = $request->validated();
 
-        $offers = $this->listOffers->execute($filters);
+        $offers = $this->offers->list($validated);
 
         return Inertia::render('TestPage', [
             'offers' => OfferResource::collection($offers)->resolve(),
             'filters' => [
-                'search' => $filters->search,
+                'search' => $validated['search'] ?? null,
             ],
         ]);
     }
 
     public function store(OfferStoreRequest $request): RedirectResponse
     {
-        $this->createOffer->execute(OfferData::fromArray($request->validated()));
+        $this->offers->create($request->validated());
 
         $parameters = array_filter(
             ['search' => $request->input('search')],
@@ -55,7 +49,7 @@ class OfferController extends Controller
 
     public function destroy(Request $request, Offer $offer): RedirectResponse
     {
-        $this->deleteOffer->execute($offer);
+        $this->offers->delete($offer);
 
         $parameters = array_filter(
             ['search' => $request->input('search')],
