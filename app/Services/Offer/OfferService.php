@@ -2,6 +2,7 @@
 
 namespace App\Services\Offer;
 
+use App\DTO\Offer\OfferData;
 use App\DTO\Offer\OfferFilterData;
 use App\Models\Offer;
 use Illuminate\Database\Eloquent\Collection;
@@ -28,5 +29,15 @@ class OfferService
         }
 
         return $query->get();
+    }
+
+    public function create(OfferData $data): Offer
+    {
+        return $this->offer->newQuery()->create($data->toArray());
+    }
+
+    public function delete(Offer $offer): void
+    {
+        $offer->delete();
     }
 }
