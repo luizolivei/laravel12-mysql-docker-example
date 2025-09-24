@@ -12,9 +12,11 @@ Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('teste', [OfferController::class, 'index'])
-    ->middleware(['auth', 'verified'])
-    ->name('test-page');
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('teste', [OfferController::class, 'index'])->name('test-page');
+    Route::post('offers', [OfferController::class, 'store'])->name('offers.store');
+    Route::delete('offers/{offer}', [OfferController::class, 'destroy'])->name('offers.destroy');
+});
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
