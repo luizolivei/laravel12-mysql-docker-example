@@ -2,33 +2,25 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Application\Offer\CreateOffer;
-use App\Application\Offer\DeleteOffer;
-use App\Application\Offer\ListOffers;
-use App\DTO\Offer\OfferData;
-use App\DTO\Offer\OfferFilterData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Offer\OfferIndexRequest;
 use App\Http\Requests\Offer\OfferStoreRequest;
 use App\Http\Resources\OfferResource;
 use App\Models\Offer;
+use App\Services\OfferService;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 class OfferController extends Controller
 {
     public function __construct(
-        private readonly ListOffers $listOffers,
-        private readonly CreateOffer $createOffer,
-        private readonly DeleteOffer $deleteOffer,
+        private readonly OfferService $offers,
     ) {
     }
 
     public function index(OfferIndexRequest $request): JsonResponse
     {
-        $filters = OfferFilterData::fromArray($request->validated());
-
-        $offers = $this->listOffers->execute($filters);
+        $offers = $this->offers->list($request->validated());
 
         return OfferResource::collection($offers)
             ->response()
@@ -37,7 +29,7 @@ class OfferController extends Controller
 
     public function store(OfferStoreRequest $request): JsonResponse
     {
-        $offer = $this->createOffer->execute(OfferData::fromArray($request->validated()));
+        $offer = $this->offers->create($request->validated());
 
         return OfferResource::make($offer)
             ->response()
@@ -46,7 +38,7 @@ class OfferController extends Controller
 
     public function destroy(Offer $offer): JsonResponse
     {
-        $this->deleteOffer->execute($offer);
+        $this->offers->delete($offer);
 
         return response()->json(null, HttpResponse::HTTP_NO_CONTENT);
     }

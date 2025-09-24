@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use App\Domain\Offer\Repositories\OfferRepositoryInterface;
-use App\Infrastructure\Persistence\Offer\EloquentOfferRepository;
+use App\Repositories\EloquentOfferRepository;
+use App\Repositories\OfferRepositoryInterface;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
