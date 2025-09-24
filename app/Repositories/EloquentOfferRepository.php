@@ -45,4 +45,9 @@ class EloquentOfferRepository implements OfferRepositoryInterface
     {
         $offer->delete();
     }
+
+    public function findLatest(): ?Offer
+    {
+        return $this->model->newQuery()->latest('created_at')->first();
+    }
 }
