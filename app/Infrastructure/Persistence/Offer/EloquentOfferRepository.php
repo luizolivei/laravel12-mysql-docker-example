@@ -1,22 +1,23 @@
 <?php
 
-namespace App\Services\Offer;
+namespace App\Infrastructure\Persistence\Offer;
 
 use App\DTO\Offer\OfferData;
 use App\DTO\Offer\OfferFilterData;
+use App\Domain\Offer\Repositories\OfferRepositoryInterface;
 use App\Models\Offer;
 use Illuminate\Database\Eloquent\Collection;
 
-class OfferService
+class EloquentOfferRepository implements OfferRepositoryInterface
 {
     public function __construct(
-        private readonly Offer $offer,
+        private readonly Offer $model,
     ) {
     }
 
     public function list(OfferFilterData $filters): Collection
     {
-        $query = $this->offer->newQuery()
+        $query = $this->model->newQuery()
             ->orderByDesc('start_date');
 
         if ($filters->hasSearch()) {
@@ -33,7 +34,7 @@ class OfferService
 
     public function create(OfferData $data): Offer
     {
-        return $this->offer->newQuery()->create($data->toArray());
+        return $this->model->newQuery()->create($data->toArray());
     }
 
     public function delete(Offer $offer): void
