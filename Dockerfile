@@ -1,5 +1,9 @@
 FROM php:8.2-fpm
 
+# xdebug
+RUN pecl install xdebug \
+    && docker-php-ext-enable xdebug
+
 # Instala dependências do sistema
 RUN apt-get update && apt-get install -y \
     git curl libpng-dev libonig-dev libxml2-dev zip unzip nodejs npm \

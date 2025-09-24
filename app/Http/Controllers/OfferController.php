@@ -11,7 +11,9 @@ class OfferController extends Controller
 {
     public function index()
     {
-        return response()->json(Offer::all());
+        xdebug_break();
+        $teste = response()->json(Offer::all());
+        return $teste;
     }
 
     public function store(Request $request)
