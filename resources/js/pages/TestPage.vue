@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { Badge, type BadgeVariants } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/AppLayout.vue';
+import { testPage } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { Head, router } from '@inertiajs/vue3';
+import { computed, ref, watch } from 'vue';
 
 interface Offer {
     id: number;
@@ -18,15 +21,59 @@ interface Offer {
     updated_at: string | null;
 }
 
+interface OfferFilters {
+    search?: string | null;
+}
+
 const props = defineProps<{
     offers: Offer[];
+    filters?: OfferFilters;
 }>();
 
 const offers = computed(() => props.offers ?? []);
 
+const searchQuery = ref(props.filters?.search ?? '');
+
+watch(
+    () => props.filters?.search,
+    (value) => {
+        searchQuery.value = value ?? '';
+    },
+);
+
+const hasSearch = computed(() => searchQuery.value.trim().length > 0);
+
+const visitOffers = (params: Record<string, unknown> = {}) => {
+    router.get(testPage(), params, {
+        preserveState: true,
+        preserveScroll: true,
+        replace: true,
+        only: ['offers', 'filters'],
+    });
+};
+
+const applySearch = () => {
+    const query = searchQuery.value.trim();
+
+    searchQuery.value = query;
+
+    visitOffers(query ? { search: query } : {});
+};
+
+const resetSearch = () => {
+    if (!hasSearch.value && !(props.filters?.search ?? '')) {
+        return;
+    }
+
+    searchQuery.value = '';
+
+    visitOffers();
+};
+
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Ofertas',
+        href: testPage().url,
     },
 ];
 
@@ -86,6 +133,32 @@ const formatDate = (value?: string | null) => {
             <div
                 class="flex-1 overflow-hidden rounded-xl border border-border bg-card shadow-sm dark:border-sidebar-border"
             >
+                <div class="border-b border-border p-4">
+                    <form
+                        class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+                        @submit.prevent="applySearch"
+                    >
+                        <Input
+                            v-model="searchQuery"
+                            type="search"
+                            name="search"
+                            placeholder="Buscar ofertas"
+                            class="w-full sm:max-w-md"
+                            autocomplete="off"
+                        />
+                        <div class="flex items-center gap-2">
+                            <Button type="submit">Buscar</Button>
+                            <Button
+                                v-if="hasSearch"
+                                type="button"
+                                variant="ghost"
+                                @click="resetSearch"
+                            >
+                                Limpar
+                            </Button>
+                        </div>
+                    </form>
+                </div>
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-border text-left text-sm">
                         <thead class="bg-muted">
@@ -141,7 +214,11 @@ const formatDate = (value?: string | null) => {
                         <tbody v-else>
                             <tr>
                                 <td class="px-4 py-6 text-center text-muted-foreground" colspan="6">
-                                    Nenhuma oferta cadastrada no momento.
+                                    {{
+                                        hasSearch
+                                            ? 'Nenhuma oferta encontrada para a busca atual.'
+                                            : 'Nenhuma oferta cadastrada no momento.'
+                                    }}
                                 </td>
                             </tr>
                         </tbody>
