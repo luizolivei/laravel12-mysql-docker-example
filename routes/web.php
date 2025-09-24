@@ -12,7 +12,7 @@ Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('teste', OfferController::class)
+Route::get('teste', [OfferController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('test-page');
 
