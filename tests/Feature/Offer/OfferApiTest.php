@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Offer;
 
+use App\Models\Category;
 use App\Models\Offer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -42,7 +43,10 @@ class OfferApiTest extends TestCase
 
     public function test_it_creates_a_new_offer(): void
     {
+        $category = Category::factory()->create();
+
         $payload = [
+            'category_id' => $category->id,
             'title' => 'Nova Oferta',
             'description' => 'Descrição detalhada da oferta',
             'price' => 199.9,
@@ -57,12 +61,30 @@ class OfferApiTest extends TestCase
         $response
             ->assertCreated()
             ->assertJsonPath('data.title', 'Nova Oferta')
-            ->assertJsonPath('data.currency', 'BRL');
+            ->assertJsonPath('data.currency', 'BRL')
+            ->assertJsonPath('data.category.name', $category->name);
 
         $this->assertDatabaseHas('offers', [
             'title' => 'Nova Oferta',
             'currency' => 'BRL',
+            'category_id' => $category->id,
         ]);
+    }
+
+    public function test_it_filters_offers_by_category(): void
+    {
+        $electronics = Category::factory()->create(['name' => 'Eletrônicos']);
+        $books = Category::factory()->create(['name' => 'Livros']);
+
+        Offer::factory()->for($electronics)->create(['title' => 'Promoção TV']);
+        Offer::factory()->for($books)->create(['title' => 'Desconto Livro']);
+
+        $response = $this->getJson("/api/offers?category_id={$electronics->id}");
+
+        $response
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.category.name', 'Eletrônicos');
     }
 
     public function test_it_deletes_an_offer(): void

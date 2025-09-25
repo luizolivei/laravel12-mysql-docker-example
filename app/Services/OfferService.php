@@ -20,8 +20,12 @@ class OfferService
     public function list(array $filters = []): Collection
     {
         $search = Arr::get($filters, 'search');
+        $categoryId = Arr::get($filters, 'category_id');
 
-        return $this->offers->list(is_string($search) ? $search : null);
+        return $this->offers->list(
+            is_string($search) ? $search : null,
+            is_numeric($categoryId) ? (int) $categoryId : null,
+        );
     }
 
     /**

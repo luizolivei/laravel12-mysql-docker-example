@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Offer;
 
+use App\Models\Category;
 use App\Models\Offer;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -16,7 +17,10 @@ class OfferWebTest extends TestCase
     public function test_authenticated_user_can_view_offers_page(): void
     {
         $user = User::factory()->create();
-        Offer::factory()->count(2)->create();
+        $categories = Category::factory()->count(2)->create();
+
+        Offer::factory()->for($categories[0])->create();
+        Offer::factory()->for($categories[1])->create();
 
         $response = $this->actingAs($user)->get(route('test-page'));
 
@@ -25,8 +29,10 @@ class OfferWebTest extends TestCase
         $response->assertInertia(fn (Assert $page) => $page
             ->component('TestPage')
             ->has('offers', 2)
+            ->has('categories', 2)
             ->has('filters', fn (Assert $props) => $props
                 ->where('search', null)
+                ->where('category_id', null)
             )
         );
     }
@@ -34,11 +40,13 @@ class OfferWebTest extends TestCase
     public function test_authenticated_user_can_create_offer_through_web_form(): void
     {
         $user = User::factory()->create();
+        $category = Category::factory()->create();
 
         $startDate = Carbon::now()->addHour();
         $endDate = (clone $startDate)->addHour();
 
         $payload = [
+            'category_id' => $category->id,
             'title' => 'Oferta Web',
             'description' => 'Oferta criada via formulário web',
             'price' => '99.90',
@@ -57,6 +65,7 @@ class OfferWebTest extends TestCase
         $this->assertDatabaseHas('offers', [
             'title' => 'Oferta Web',
             'currency' => 'BRL',
+            'category_id' => $category->id,
         ]);
     }
 

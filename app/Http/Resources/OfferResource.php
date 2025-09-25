@@ -17,6 +17,8 @@ class OfferResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'category_id' => $this->category_id,
+            'category' => CategoryResource::make($this->whenLoaded('category')),
             'title' => $this->title,
             'description' => $this->description,
             'price' => (float) $this->price,

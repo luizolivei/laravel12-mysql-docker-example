@@ -10,8 +10,15 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, router, useForm } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 
+interface Category {
+    id: number;
+    name: string;
+}
+
 interface Offer {
     id: number;
+    category_id: number;
+    category?: Category | null;
     title: string;
     description: string;
     price: number;
@@ -25,16 +32,24 @@ interface Offer {
 
 interface OfferFilters {
     search?: string | null;
+    category_id?: number | string | null;
 }
 
 const props = defineProps<{
     offers: Offer[];
+    categories: Category[];
     filters?: OfferFilters;
 }>();
 
 const offers = computed(() => props.offers ?? []);
+const categories = computed(() => props.categories ?? []);
 
 const searchQuery = ref(props.filters?.search ?? '');
+const selectedCategoryId = ref(
+    props.filters?.category_id !== undefined && props.filters?.category_id !== null
+        ? String(props.filters.category_id)
+        : '',
+);
 
 watch(
     () => props.filters?.search,
@@ -43,7 +58,31 @@ watch(
     },
 );
 
-const hasSearch = computed(() => searchQuery.value.trim().length > 0);
+watch(
+    () => props.filters?.category_id,
+    (value) => {
+        selectedCategoryId.value = value !== undefined && value !== null ? String(value) : '';
+    },
+);
+
+const trimmedSearchQuery = computed(() => searchQuery.value.trim());
+const hasSearch = computed(() => trimmedSearchQuery.value.length > 0);
+const hasCategoryFilter = computed(() => selectedCategoryId.value !== '');
+const hasFilters = computed(() => hasSearch.value || hasCategoryFilter.value);
+
+const buildFilterParams = () => {
+    const params: Record<string, unknown> = {};
+
+    if (trimmedSearchQuery.value) {
+        params.search = trimmedSearchQuery.value;
+    }
+
+    if (selectedCategoryId.value) {
+        params.category_id = selectedCategoryId.value;
+    }
+
+    return params;
+};
 
 const visitOffers = (params: Record<string, unknown> = {}) => {
     router.get(testPage(), params, {
@@ -54,25 +93,29 @@ const visitOffers = (params: Record<string, unknown> = {}) => {
     });
 };
 
-const applySearch = () => {
-    const query = searchQuery.value.trim();
+const applyFilters = () => {
+    searchQuery.value = trimmedSearchQuery.value;
 
-    searchQuery.value = query;
-
-    visitOffers(query ? { search: query } : {});
+    visitOffers(buildFilterParams());
 };
 
-const resetSearch = () => {
-    if (!hasSearch.value && !(props.filters?.search ?? '')) {
+const resetFilters = () => {
+    if (
+        !hasFilters.value &&
+        !(props.filters?.search ?? '') &&
+        !(props.filters?.category_id ?? '')
+    ) {
         return;
     }
 
     searchQuery.value = '';
+    selectedCategoryId.value = '';
 
     visitOffers();
 };
 
 type CreateOfferForm = {
+    category_id: string;
     title: string;
     description: string;
     price: string;
@@ -95,6 +138,8 @@ const currencyOptions: Array<{ value: string; label: string }> = [
 ];
 
 const createOfferForm = useForm<CreateOfferForm>({
+    category_id:
+        categories.value.length > 0 ? String(categories.value[0].id) : '',
     title: '',
     description: '',
     price: '',
@@ -104,21 +149,34 @@ const createOfferForm = useForm<CreateOfferForm>({
     end_date: '',
 });
 
+watch(
+    () => categories.value,
+    (value) => {
+        if (value.length > 0 && !createOfferForm.category_id) {
+            createOfferForm.category_id = String(value[0].id);
+        }
+    },
+    { immediate: true },
+);
+
 const deletingOfferId = ref<number | null>(null);
 
 const handleCreateOffer = () => {
     createOfferForm
         .transform((data) => ({
             ...data,
+            category_id: data.category_id ? Number(data.category_id) : null,
             end_date: data.end_date || null,
         }))
         .post('/offers', {
             preserveScroll: true,
             onSuccess: () => {
                 createOfferForm.reset('title', 'description', 'price', 'start_date', 'end_date');
+                createOfferForm.category_id =
+                    categories.value.length > 0 ? String(categories.value[0].id) : '';
 
-                if (hasSearch.value) {
-                    visitOffers({ search: searchQuery.value });
+                if (hasFilters.value) {
+                    visitOffers(buildFilterParams());
                 }
             },
         });
@@ -131,12 +189,14 @@ const deleteOffer = (offer: Offer) => {
 
     deletingOfferId.value = offer.id;
 
+    const filters = buildFilterParams();
+
     router.delete(`/offers/${offer.id}`, {
         preserveScroll: true,
-        data: hasSearch.value ? { search: searchQuery.value } : {},
+        data: filters,
         onSuccess: () => {
-            if (hasSearch.value) {
-                visitOffers({ search: searchQuery.value });
+            if (Object.keys(filters).length > 0) {
+                visitOffers(filters);
             }
         },
         onFinish: () => {
@@ -211,25 +271,41 @@ const formatDate = (value?: string | null) => {
                 <div class="border-b border-border p-4">
                     <form
                         class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
-                        @submit.prevent="applySearch"
+                        @submit.prevent="applyFilters"
                     >
-                        <Input
-                            v-model="searchQuery"
-                            type="search"
-                            name="search"
-                            placeholder="Buscar ofertas"
-                            class="w-full sm:max-w-md"
-                            autocomplete="off"
-                        />
+                        <div class="flex w-full flex-col gap-3 sm:flex-row sm:items-center">
+                            <Input
+                                v-model="searchQuery"
+                                type="search"
+                                name="search"
+                                placeholder="Buscar ofertas"
+                                class="w-full sm:max-w-md"
+                                autocomplete="off"
+                            />
+                            <select
+                                v-model="selectedCategoryId"
+                                name="category_id"
+                                class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 md:text-sm sm:w-64"
+                            >
+                                <option value="">Todas as categorias</option>
+                                <option
+                                    v-for="category in categories"
+                                    :key="category.id"
+                                    :value="String(category.id)"
+                                >
+                                    {{ category.name }}
+                                </option>
+                            </select>
+                        </div>
                         <div class="flex items-center gap-2">
-                            <Button type="submit">Buscar</Button>
+                            <Button type="submit">Aplicar</Button>
                             <Button
-                                v-if="hasSearch"
+                                v-if="hasFilters"
                                 type="button"
                                 variant="ghost"
-                                @click="resetSearch"
+                                @click="resetFilters"
                             >
-                                Limpar
+                                Limpar filtros
                             </Button>
                         </div>
                     </form>
@@ -244,11 +320,11 @@ const formatDate = (value?: string | null) => {
                         </div>
 
                         <div class="grid gap-4 md:grid-cols-2">
-                            <div class="grid gap-2 md:col-span-2">
-                                <Label for="title">Título</Label>
-                                <Input
-                                    id="title"
-                                    v-model="createOfferForm.title"
+                        <div class="grid gap-2 md:col-span-2">
+                            <Label for="title">Título</Label>
+                            <Input
+                                id="title"
+                                v-model="createOfferForm.title"
                                     name="title"
                                     required
                                     autocomplete="off"
@@ -256,6 +332,29 @@ const formatDate = (value?: string | null) => {
                                     :aria-invalid="createOfferForm.errors.title ? true : undefined"
                                 />
                                 <InputError :message="createOfferForm.errors.title" />
+                            </div>
+
+                            <div class="grid gap-2">
+                                <Label for="category_id">Categoria</Label>
+                                <select
+                                    id="category_id"
+                                    v-model="createOfferForm.category_id"
+                                    name="category_id"
+                                    required
+                                    :disabled="categories.length === 0"
+                                    class="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 md:text-sm"
+                                    :aria-invalid="createOfferForm.errors.category_id ? true : undefined"
+                                >
+                                    <option value="" disabled>Selecione uma categoria</option>
+                                    <option
+                                        v-for="category in categories"
+                                        :key="category.id"
+                                        :value="String(category.id)"
+                                    >
+                                        {{ category.name }}
+                                    </option>
+                                </select>
+                                <InputError :message="createOfferForm.errors.category_id" />
                             </div>
 
                             <div class="grid gap-2 md:col-span-2">
@@ -350,9 +449,18 @@ const formatDate = (value?: string | null) => {
                         </div>
 
                         <div class="flex items-center gap-3">
-                            <Button type="submit" :disabled="createOfferForm.processing">
+                            <Button
+                                type="submit"
+                                :disabled="createOfferForm.processing || categories.length === 0"
+                            >
                                 Cadastrar oferta
                             </Button>
+                            <p
+                                v-if="categories.length === 0"
+                                class="text-sm text-muted-foreground"
+                            >
+                                Cadastre uma categoria antes de criar ofertas.
+                            </p>
                             <p
                                 v-if="createOfferForm.recentlySuccessful"
                                 class="text-sm text-muted-foreground"
@@ -371,6 +479,7 @@ const formatDate = (value?: string | null) => {
                                 <th scope="col" class="px-4 py-3 font-semibold text-muted-foreground">
                                     Descrição
                                 </th>
+                                <th scope="col" class="px-4 py-3 font-semibold text-muted-foreground">Categoria</th>
                                 <th scope="col" class="px-4 py-3 font-semibold text-muted-foreground">Preço</th>
                                 <th scope="col" class="px-4 py-3 font-semibold text-muted-foreground">Status</th>
                                 <th scope="col" class="px-4 py-3 font-semibold text-muted-foreground">Período</th>
@@ -398,6 +507,9 @@ const formatDate = (value?: string | null) => {
                                 </td>
                                 <td class="px-4 py-3 text-sm text-muted-foreground">
                                     {{ offer.description }}
+                                </td>
+                                <td class="px-4 py-3 text-sm text-foreground">
+                                    {{ offer.category?.name ?? '—' }}
                                 </td>
                                 <td class="px-4 py-3 font-medium text-foreground">
                                     {{ formatCurrency(offer.price, offer.currency) }}
@@ -430,10 +542,10 @@ const formatDate = (value?: string | null) => {
                         </tbody>
                         <tbody v-else>
                             <tr>
-                                <td class="px-4 py-6 text-center text-muted-foreground" colspan="7">
+                                <td class="px-4 py-6 text-center text-muted-foreground" colspan="8">
                                     {{
-                                        hasSearch
-                                            ? 'Nenhuma oferta encontrada para a busca atual.'
+                                        hasFilters
+                                            ? 'Nenhuma oferta encontrada para os filtros atuais.'
                                             : 'Nenhuma oferta cadastrada no momento.'
                                     }}
                                 </td>
