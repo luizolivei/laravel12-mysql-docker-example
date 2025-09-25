@@ -24,6 +24,7 @@ class OfferResource extends JsonResource
             'price' => (float) $this->price,
             'currency' => $this->currency,
             'status' => $this->status,
+            'active' => (bool) $this->active,
             'start_date' => optional($this->start_date)?->toIso8601String(),
             'end_date' => optional($this->end_date)?->toIso8601String(),
             'created_at' => optional($this->created_at)?->toIso8601String(),

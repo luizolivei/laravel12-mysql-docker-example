@@ -15,6 +15,7 @@ class EloquentCategoryRepository implements CategoryRepositoryInterface
     public function list(): Collection
     {
         return $this->model->newQuery()
+            ->where('active', true)
             ->orderBy('name')
             ->get();
     }
@@ -34,6 +35,16 @@ class EloquentCategoryRepository implements CategoryRepositoryInterface
 
     public function delete(Category $category): void
     {
-        $category->delete();
+        if (! $category->active) {
+            return;
+        }
+
+        $category->getConnection()->transaction(function () use ($category) {
+            $category->forceFill(['active' => false])->save();
+
+            $category->offers()
+                ->where('active', true)
+                ->update(['active' => false]);
+        });
     }
 }

@@ -13,6 +13,7 @@ import { computed, ref, watch } from 'vue';
 interface Category {
     id: number;
     name: string;
+    active: boolean;
 }
 
 interface Offer {
@@ -24,6 +25,7 @@ interface Offer {
     price: number;
     currency: string;
     status: 'active' | 'expired' | 'draft';
+    active: boolean;
     start_date: string | null;
     end_date: string | null;
     created_at: string | null;

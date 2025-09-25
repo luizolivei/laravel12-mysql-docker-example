@@ -33,6 +33,10 @@ class OfferService
      */
     public function create(array $data): Offer
     {
+        if (! array_key_exists('active', $data)) {
+            $data['active'] = true;
+        }
+
         return $this->offers->create($data);
     }
 
@@ -59,6 +63,7 @@ class OfferService
             ->toArray();
 
         $payload['price'] = $discountedPrice;
+        $payload['active'] = true;
 
         return $this->offers->create($payload);
     }

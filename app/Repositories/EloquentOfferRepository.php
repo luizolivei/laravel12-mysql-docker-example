@@ -17,6 +17,10 @@ class EloquentOfferRepository implements OfferRepositoryInterface
     {
         $query = $this->model->newQuery()
             ->with('category')
+            ->where('active', true)
+            ->whereHas('category', static function ($query) {
+                $query->where('active', true);
+            })
             ->orderByDesc('start_date');
 
         if ($categoryId !== null) {
@@ -55,6 +59,13 @@ class EloquentOfferRepository implements OfferRepositoryInterface
 
     public function findLatest(): ?Offer
     {
-        return $this->model->newQuery()->with('category')->latest('created_at')->first();
+        return $this->model->newQuery()
+            ->with('category')
+            ->where('active', true)
+            ->whereHas('category', static function ($query) {
+                $query->where('active', true);
+            })
+            ->latest('created_at')
+            ->first();
     }
 }

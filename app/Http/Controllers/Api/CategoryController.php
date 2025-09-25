@@ -8,8 +8,10 @@ use App\Http\Requests\Category\CategoryUpdateRequest;
 use App\Http\Resources\CategoryResource;
 use App\Models\Category;
 use App\Services\CategoryService;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 class CategoryController extends Controller
@@ -30,7 +32,7 @@ class CategoryController extends Controller
 
     public function store(CategoryStoreRequest $request): JsonResponse
     {
-        $category = $this->categories->create($request->validated());
+        $category = $this->categories->create($request->validated(), $request->user());
 
         return CategoryResource::make($category)
             ->response()
@@ -46,10 +48,10 @@ class CategoryController extends Controller
             ->setStatusCode(HttpResponse::HTTP_OK);
     }
 
-    public function destroy(Category $category): JsonResponse
+    public function destroy(Category $category, Request $request): JsonResponse
     {
         try {
-            $this->categories->delete($category);
+            $this->categories->delete($category, $request->user());
         } catch (QueryException $exception) {
             if ($exception->getCode() === '23000') {
                 return response()->json([
@@ -58,6 +60,10 @@ class CategoryController extends Controller
             }
 
             throw $exception;
+        } catch (AuthorizationException $exception) {
+            return response()->json([
+                'message' => $exception->getMessage(),
+            ], HttpResponse::HTTP_FORBIDDEN);
         }
 
         return response()->json(null, HttpResponse::HTTP_NO_CONTENT);

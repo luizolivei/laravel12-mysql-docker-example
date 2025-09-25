@@ -18,7 +18,7 @@ class OfferIndexRequest extends FormRequest
     {
         return [
             'search' => ['nullable', 'string'],
-            'category_id' => ['nullable', 'integer', 'exists:categories,id'],
+            'category_id' => ['nullable', 'integer', 'exists:categories,id,active,1'],
         ];
     }
 }

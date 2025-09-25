@@ -4,6 +4,7 @@ namespace Tests\Feature\Offer;
 
 use App\Models\Category;
 use App\Models\Offer;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
@@ -15,12 +16,14 @@ class OfferApiTest extends TestCase
     public function test_it_lists_offers(): void
     {
         Offer::factory()->count(3)->create();
+        Offer::factory()->inactive()->create();
 
         $response = $this->getJson('/api/offers');
 
         $response
             ->assertOk()
-            ->assertJsonCount(3, 'data');
+            ->assertJsonCount(3, 'data')
+            ->assertJsonPath('data.0.active', true);
     }
 
     public function test_it_filters_offers_using_search_parameter(): void
@@ -44,6 +47,7 @@ class OfferApiTest extends TestCase
     public function test_it_creates_a_new_offer(): void
     {
         $category = Category::factory()->create();
+        $user = User::factory()->create();
 
         $payload = [
             'category_id' => $category->id,
@@ -56,7 +60,7 @@ class OfferApiTest extends TestCase
             'end_date' => Carbon::now()->addDay()->toIso8601String(),
         ];
 
-        $response = $this->postJson('/api/offers', $payload);
+        $response = $this->actingAs($user)->postJson('/api/offers', $payload);
 
         $response
             ->assertCreated()
@@ -68,6 +72,7 @@ class OfferApiTest extends TestCase
             'title' => 'Nova Oferta',
             'currency' => 'BRL',
             'category_id' => $category->id,
+            'active' => true,
         ]);
     }
 
@@ -78,6 +83,7 @@ class OfferApiTest extends TestCase
 
         Offer::factory()->for($electronics)->create(['title' => 'Promoção TV']);
         Offer::factory()->for($books)->create(['title' => 'Desconto Livro']);
+        Offer::factory()->for($books)->inactive()->create(['title' => 'Livro Antigo']);
 
         $response = $this->getJson("/api/offers?category_id={$electronics->id}");
 

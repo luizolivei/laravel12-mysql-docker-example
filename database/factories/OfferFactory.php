@@ -29,8 +29,16 @@ class OfferFactory extends Factory
             'price' => $this->faker->randomFloat(2, 10, 1000),
             'currency' => $this->faker->randomElement(['BRL', 'USD', 'EUR']),
             'status' => $this->faker->randomElement(['draft', 'active', 'expired']),
+            'active' => true,
             'start_date' => $startDate,
             'end_date' => $endDate,
         ];
+    }
+
+    public function inactive(): static
+    {
+        return $this->state(fn () => [
+            'active' => false,
+        ]);
     }
 }

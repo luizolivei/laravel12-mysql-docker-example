@@ -19,12 +19,14 @@ class Offer extends Model
         'price',
         'currency',
         'status',
+        'active',
         'start_date',
         'end_date',
     ];
 
     protected $casts = [
         'price' => 'float',
+        'active' => 'bool',
         'start_date' => 'datetime',
         'end_date' => 'datetime',
         'created_at' => 'datetime',
