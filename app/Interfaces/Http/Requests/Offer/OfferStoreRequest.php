@@ -18,6 +18,7 @@ class OfferStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'category_id' => ['required', 'integer', 'exists:categories,id'],
             'title' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string'],
             'price' => ['required', 'numeric', 'min:0'],
@@ -30,6 +31,12 @@ class OfferStoreRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        if ($this->has('category_id')) {
+            $this->merge([
+                'category_id' => $this->integer('category_id'),
+            ]);
+        }
+
         $currency = $this->string('currency')->trim()->upper();
 
         if ($currency->isNotEmpty()) {

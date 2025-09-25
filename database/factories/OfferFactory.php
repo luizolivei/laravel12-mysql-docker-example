@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Domain\Categories\Entities\Category;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -24,6 +25,7 @@ class OfferFactory extends Factory
             : null;
 
         return [
+            'category_id' => Category::factory(),
             'title' => $this->faker->sentence(3),
             'description' => $this->faker->paragraph(),
             'price' => $this->faker->randomFloat(2, 10, 1000),

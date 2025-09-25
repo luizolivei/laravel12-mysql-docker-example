@@ -36,6 +36,7 @@ class GenerateDiscountedOfferCommandTest extends TestCase
         $this->assertSame($latest->description, $newOffer->description);
         $this->assertSame($latest->currency, $newOffer->currency);
         $this->assertSame($latest->status, $newOffer->status);
+        $this->assertSame($latest->category_id, $newOffer->category_id);
         $this->assertEquals($latest->start_date, $newOffer->start_date);
         $this->assertEquals($latest->end_date, $newOffer->end_date);
     }
