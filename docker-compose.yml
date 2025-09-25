@@ -22,6 +22,14 @@ services:
             mysql:
                 condition: service_healthy
 
+    scheduler:
+        build: .
+        depends_on:
+            - app
+        command: php artisan schedule:work
+        volumes:
+            - ./:/var/www/html
+
     frontend:
         image: node:20-bullseye
         container_name: laravel_frontend
