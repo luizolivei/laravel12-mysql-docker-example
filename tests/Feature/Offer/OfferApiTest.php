@@ -2,7 +2,8 @@
 
 namespace Tests\Feature\Offer;
 
-use App\Models\Offer;
+use App\Domain\Categories\Entities\Category;
+use App\Domain\Offers\Entities\Offer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
@@ -19,7 +20,31 @@ class OfferApiTest extends TestCase
 
         $response
             ->assertOk()
-            ->assertJsonCount(3, 'data');
+            ->assertJsonCount(3, 'data')
+            ->assertJsonStructure([
+                'data' => [
+                    '*' => [
+                        'id',
+                        'title',
+                        'description',
+                        'price',
+                        'currency',
+                        'status',
+                        'category_id',
+                        'category' => [
+                            'id',
+                            'name',
+                            'description',
+                            'created_at',
+                            'updated_at',
+                        ],
+                        'start_date',
+                        'end_date',
+                        'created_at',
+                        'updated_at',
+                    ],
+                ],
+            ]);
     }
 
     public function test_it_filters_offers_using_search_parameter(): void
@@ -42,7 +67,10 @@ class OfferApiTest extends TestCase
 
     public function test_it_creates_a_new_offer(): void
     {
+        $category = Category::factory()->create();
+
         $payload = [
+            'category_id' => $category->id,
             'title' => 'Nova Oferta',
             'description' => 'Descrição detalhada da oferta',
             'price' => 199.9,
@@ -62,6 +90,7 @@ class OfferApiTest extends TestCase
         $this->assertDatabaseHas('offers', [
             'title' => 'Nova Oferta',
             'currency' => 'BRL',
+            'category_id' => $category->id,
         ]);
     }
 

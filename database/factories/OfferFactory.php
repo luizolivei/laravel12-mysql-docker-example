@@ -2,13 +2,16 @@
 
 namespace Database\Factories;
 
+use App\Domain\Categories\Entities\Category;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Offer>
+ * @extends Factory<\App\Domain\Offers\Entities\Offer>
  */
 class OfferFactory extends Factory
 {
+    protected $model = \App\Domain\Offers\Entities\Offer::class;
+
     /**
      * Define the model's default state.
      *
@@ -22,6 +25,7 @@ class OfferFactory extends Factory
             : null;
 
         return [
+            'category_id' => Category::factory(),
             'title' => $this->faker->sentence(3),
             'description' => $this->faker->paragraph(),
             'price' => $this->faker->randomFloat(2, 10, 1000),

@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Services\OfferService;
+use App\Application\Offers\Services\OfferService;
 use Illuminate\Console\Command;
 
 class GenerateDiscountedOfferCommand extends Command

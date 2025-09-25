@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Repositories;
+namespace App\Infrastructure\Offers\Persistence;
 
-use App\Models\Offer;
+use App\Domain\Offers\Entities\Offer;
+use App\Domain\Offers\Repositories\OfferRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Str;
 
@@ -16,6 +17,7 @@ class EloquentOfferRepository implements OfferRepositoryInterface
     public function list(?string $search = null): Collection
     {
         $query = $this->model->newQuery()
+            ->with('category')
             ->orderByDesc('start_date');
 
         if ($search !== null) {
@@ -38,7 +40,9 @@ class EloquentOfferRepository implements OfferRepositoryInterface
 
     public function create(array $attributes): Offer
     {
-        return $this->model->newQuery()->create($attributes);
+        $offer = $this->model->newQuery()->create($attributes);
+
+        return $offer->load('category');
     }
 
     public function delete(Offer $offer): void
@@ -48,6 +52,9 @@ class EloquentOfferRepository implements OfferRepositoryInterface
 
     public function findLatest(): ?Offer
     {
-        return $this->model->newQuery()->latest('created_at')->first();
+        return $this->model->newQuery()
+            ->with('category')
+            ->latest('created_at')
+            ->first();
     }
 }

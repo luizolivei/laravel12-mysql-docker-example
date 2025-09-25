@@ -2,7 +2,8 @@
 
 namespace Tests\Feature\Offer;
 
-use App\Models\Offer;
+use App\Domain\Categories\Entities\Category;
+use App\Domain\Offers\Entities\Offer;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -37,8 +38,10 @@ class OfferWebTest extends TestCase
 
         $startDate = Carbon::now()->addHour();
         $endDate = (clone $startDate)->addHour();
+        $category = Category::factory()->create();
 
         $payload = [
+            'category_id' => (string) $category->id,
             'title' => 'Oferta Web',
             'description' => 'Oferta criada via formulário web',
             'price' => '99.90',
@@ -57,6 +60,7 @@ class OfferWebTest extends TestCase
         $this->assertDatabaseHas('offers', [
             'title' => 'Oferta Web',
             'currency' => 'BRL',
+            'category_id' => $category->id,
         ]);
     }
 
