@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Offer;
 
-use App\Models\Offer;
+use App\Domain\Offers\Entities\Offer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;

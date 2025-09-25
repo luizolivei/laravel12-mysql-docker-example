@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Interfaces\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin \App\Models\Offer */
+/** @mixin \App\Domain\Offers\Entities\Offer */
 class OfferResource extends JsonResource
 {
     /**

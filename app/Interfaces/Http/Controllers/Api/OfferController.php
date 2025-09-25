@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Interfaces\Http\Controllers\Api;
 
+use App\Application\Offers\Services\OfferService;
+use App\Domain\Offers\Entities\Offer;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Offer\OfferIndexRequest;
-use App\Http\Requests\Offer\OfferStoreRequest;
-use App\Http\Resources\OfferResource;
-use App\Models\Offer;
-use App\Services\OfferService;
+use App\Interfaces\Http\Requests\Offer\OfferIndexRequest;
+use App\Interfaces\Http\Requests\Offer\OfferStoreRequest;
+use App\Interfaces\Http\Resources\OfferResource;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
 

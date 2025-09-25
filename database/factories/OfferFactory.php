@@ -5,10 +5,12 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Offer>
+ * @extends Factory<\App\Domain\Offers\Entities\Offer>
  */
 class OfferFactory extends Factory
 {
+    protected $model = \App\Domain\Offers\Entities\Offer::class;
+
     /**
      * Define the model's default state.
      *

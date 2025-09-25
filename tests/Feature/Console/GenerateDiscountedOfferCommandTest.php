@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Console;
 
-use App\Models\Offer;
+use App\Domain\Offers\Entities\Offer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;

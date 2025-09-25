@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Api\OfferController;
+use App\Interfaces\Http\Controllers\Api\OfferController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('api')->group(function () {
