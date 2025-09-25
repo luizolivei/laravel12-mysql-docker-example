@@ -11,13 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('offers', function (Blueprint $table) {
-            $table->foreignId('category_id')
-                ->after('id')
-                ->constrained()
-                ->cascadeOnUpdate()
-                ->restrictOnDelete();
-        });
+        if (! Schema::hasColumn('offers', 'category_id')) {
+            Schema::table('offers', function (Blueprint $table) {
+                $table->foreignId('category_id')
+                    ->after('id')
+                    ->constrained()
+                    ->cascadeOnUpdate()
+                    ->restrictOnDelete();
+            });
+        }
     }
 
     /**
@@ -25,8 +27,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('offers', function (Blueprint $table) {
-            $table->dropConstrainedForeignId('category_id');
-        });
+        if (Schema::hasColumn('offers', 'category_id')) {
+            Schema::table('offers', function (Blueprint $table) {
+                $table->dropConstrainedForeignId('category_id');
+            });
+        }
     }
 };
