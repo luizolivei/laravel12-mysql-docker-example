@@ -6,23 +6,19 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreEnterpriseRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return false;
+        return $this->user() !== null;
     }
 
     /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, mixed>
      */
     public function rules(): array
     {
         return [
-            //
+            'name' => ['required', 'name', 'max:100', 'unique:enterprises,name'],
+            'description' => ['required', 'description', 'max:255'],
         ];
     }
 }

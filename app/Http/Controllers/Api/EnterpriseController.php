@@ -2,8 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Requests\StoreEnterpriseRequest;
-use App\Http\Requests\UpdateEnterpriseRequest;
+use App\Http\Requests\Enterprise\StoreEnterpriseRequest;
 use App\Models\Enterprise;
 use App\Http\Controllers\Controller;
 use App\Services\EnterpriseService;

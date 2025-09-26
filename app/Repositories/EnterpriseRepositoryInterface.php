@@ -14,10 +14,5 @@ interface EnterpriseRepositoryInterface
      */
     public function create(array $attributes): Enterprise;
 
-    /**
-     * @param  array<string, mixed>  $attributes
-     */
-    public function update(Enterprise $enterprise, array $attributes): Enterprise;
-
     public function delete(Enterprise $enterprise): void;
 }
