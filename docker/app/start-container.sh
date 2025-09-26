@@ -19,5 +19,10 @@ if [ -z "$APP_KEY" ]; then
     php artisan key:generate --force
 fi
 
+VITE_PORT=${VITE_PORT:-5173}
+if [ -z "${VITE_DEV_SERVER_URL:-}" ]; then
+    export VITE_DEV_SERVER_URL="http://frontend:${VITE_PORT}"
+fi
+
 echo "Starting Laravel development server on port ${LARAVEL_PORT:-8000}"
 exec php artisan serve --host=0.0.0.0 --port="${LARAVEL_PORT:-8000}"
