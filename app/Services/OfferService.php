@@ -20,8 +20,12 @@ class OfferService
     public function list(array $filters = []): Collection
     {
         $search = Arr::get($filters, 'search');
+        $categoryId = Arr::get($filters, 'category_id');
 
-        return $this->offers->list(is_string($search) ? $search : null);
+        return $this->offers->list(
+            is_string($search) ? $search : null,
+            is_numeric($categoryId) ? (int) $categoryId : null,
+        );
     }
 
     /**
@@ -29,6 +33,10 @@ class OfferService
      */
     public function create(array $data): Offer
     {
+        if (! array_key_exists('active', $data)) {
+            $data['active'] = true;
+        }
+
         return $this->offers->create($data);
     }
 
@@ -55,6 +63,7 @@ class OfferService
             ->toArray();
 
         $payload['price'] = $discountedPrice;
+        $payload['active'] = true;
 
         return $this->offers->create($payload);
     }

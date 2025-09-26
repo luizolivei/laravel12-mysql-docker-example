@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Repositories\CategoryRepositoryInterface;
+use App\Repositories\EloquentCategoryRepository;
 use App\Repositories\EloquentOfferRepository;
 use App\Repositories\OfferRepositoryInterface;
 use Illuminate\Support\ServiceProvider;
@@ -14,6 +16,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(OfferRepositoryInterface::class, EloquentOfferRepository::class);
+        $this->app->bind(CategoryRepositoryInterface::class, EloquentCategoryRepository::class);
     }
 
     /**

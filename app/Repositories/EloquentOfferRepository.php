@@ -13,10 +13,19 @@ class EloquentOfferRepository implements OfferRepositoryInterface
     ) {
     }
 
-    public function list(?string $search = null): Collection
+    public function list(?string $search = null, ?int $categoryId = null): Collection
     {
         $query = $this->model->newQuery()
+            ->with('category')
+            ->where('active', true)
+            ->whereHas('category', static function ($query) {
+                $query->where('active', true);
+            })
             ->orderByDesc('start_date');
+
+        if ($categoryId !== null) {
+            $query->where('category_id', $categoryId);
+        }
 
         if ($search !== null) {
             $normalizedSearch = trim($search);
@@ -38,7 +47,9 @@ class EloquentOfferRepository implements OfferRepositoryInterface
 
     public function create(array $attributes): Offer
     {
-        return $this->model->newQuery()->create($attributes);
+        $offer = $this->model->newQuery()->create($attributes);
+
+        return $offer->load('category');
     }
 
     public function delete(Offer $offer): void
@@ -48,6 +59,13 @@ class EloquentOfferRepository implements OfferRepositoryInterface
 
     public function findLatest(): ?Offer
     {
-        return $this->model->newQuery()->latest('created_at')->first();
+        return $this->model->newQuery()
+            ->with('category')
+            ->where('active', true)
+            ->whereHas('category', static function ($query) {
+                $query->where('active', true);
+            })
+            ->latest('created_at')
+            ->first();
     }
 }

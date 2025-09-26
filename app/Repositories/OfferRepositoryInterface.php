@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Collection;
 
 interface OfferRepositoryInterface
 {
-    public function list(?string $search = null): Collection;
+    public function list(?string $search = null, ?int $categoryId = null): Collection;
 
     /**
      * @param  array<string, mixed>  $attributes

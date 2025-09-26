@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Http\Requests\Offer;
+namespace App\Http\Requests\Category;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class OfferIndexRequest extends FormRequest
+class CategoryStoreRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user() !== null;
     }
 
     /**
@@ -17,8 +17,7 @@ class OfferIndexRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'search' => ['nullable', 'string'],
-            'category_id' => ['nullable', 'integer', 'exists:categories,id,active,1'],
+            'name' => ['required', 'string', 'max:255', 'unique:categories,name'],
         ];
     }
 }
