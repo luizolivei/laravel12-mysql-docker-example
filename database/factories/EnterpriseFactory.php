@@ -17,7 +17,9 @@ class EnterpriseFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'user_id' => User::factory(),
+            'name' => $this->faker->unique()->words(5, true),
+            'description' => $this->faker->words(55, true),
         ];
     }
 }
