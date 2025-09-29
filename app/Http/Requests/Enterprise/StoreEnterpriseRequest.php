@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Enterprise;
 
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -17,8 +17,8 @@ class StoreEnterpriseRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'name', 'max:100', 'unique:enterprises,name'],
-            'description' => ['required', 'description', 'max:255'],
+            'name' => ['required', 'max:100', 'unique:enterprises,name'],
+            'description' => ['required', 'max:255'],
         ];
     }
 }
