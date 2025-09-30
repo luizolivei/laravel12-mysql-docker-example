@@ -26,7 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withSchedule(function (Schedule $schedule) {
-        $schedule->command(GenerateDiscountedOfferCommand::class)->everyThreeMinutes();
+        $schedule->command(GenerateDiscountedOfferCommand::class)->hourly();
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

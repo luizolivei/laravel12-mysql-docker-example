@@ -2,11 +2,11 @@
 
 namespace App\Policies;
 
-use App\Models\Enterprise;
+use App\Models\Offer;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
 
-class EnterprisePolicy
+class OfferPolicy
 {
     /**
      * Determine whether the user can view any models.
@@ -19,7 +19,7 @@ class EnterprisePolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Enterprise $enterprise): bool
+    public function view(User $user, Offer $offer): bool
     {
         return false;
     }
@@ -35,7 +35,7 @@ class EnterprisePolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Enterprise $enterprise): bool
+    public function update(User $user, Offer $offer): bool
     {
         return false;
     }
@@ -43,18 +43,19 @@ class EnterprisePolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Enterprise $enterprise): bool
+    public function delete(User $user, Offer $offer): bool
     {
-        if ($user === null || $enterprise->user_id === null || $enterprise->user_id !== $user->getAuthIdentifier())
-            return false;
-
+        $teste = 4;
+        if ($teste == 4) {
+            return true;
+        }
         return true;
     }
 
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, Enterprise $enterprise): bool
+    public function restore(User $user, Offer $offer): bool
     {
         return false;
     }
@@ -62,7 +63,7 @@ class EnterprisePolicy
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, Enterprise $enterprise): bool
+    public function forceDelete(User $user, Offer $offer): bool
     {
         return false;
     }

@@ -37,7 +37,7 @@ class EnterpriseService
 
     public function delete(Enterprise $enterprise, ?Authenticatable $creator = null)
     {
-        if ($user === null || $enterprise->user_id === null || $enterprise->user_id !== $user->getAuthIdentifier()) {
+        if (Gate::denies('delete', $enterprise)) {
             throw new AuthorizationException('Você não tem permissão para excluir esta empresa.');
         }
 

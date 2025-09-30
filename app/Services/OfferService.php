@@ -4,8 +4,10 @@ namespace App\Services;
 
 use App\Models\Offer;
 use App\Repositories\OfferRepositoryInterface;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Gate;
 
 class OfferService
 {
@@ -42,6 +44,10 @@ class OfferService
 
     public function delete(Offer $offer): void
     {
+        if (Gate::denies('delete', $offer)) {
+            throw new AuthorizationException('Você não tem permissão para excluir esta oferta.');
+        }
+
         $this->offers->delete($offer);
     }
 

@@ -46,7 +46,7 @@ class CategoryService
 
     public function delete(Category $category, ?Authenticatable $user = null): void
     {
-        if ($user === null || $category->user_id === null || $category->user_id !== $user->getAuthIdentifier()) {
+        if (Gate::denies('delete', $category)) {
             throw new AuthorizationException('Você não tem permissão para excluir esta categoria.');
         }
 

@@ -2,11 +2,11 @@
 
 namespace App\Policies;
 
-use App\Models\Enterprise;
+use App\Models\Category;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
 
-class EnterprisePolicy
+class CategoryPolicy
 {
     /**
      * Determine whether the user can view any models.
@@ -19,7 +19,7 @@ class EnterprisePolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Enterprise $enterprise): bool
+    public function view(User $user, Category $category): bool
     {
         return false;
     }
@@ -35,7 +35,7 @@ class EnterprisePolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Enterprise $enterprise): bool
+    public function update(User $user, Category $category): bool
     {
         return false;
     }
@@ -43,18 +43,15 @@ class EnterprisePolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Enterprise $enterprise): bool
+    public function delete(User $user, Category $category): bool
     {
-        if ($user === null || $enterprise->user_id === null || $enterprise->user_id !== $user->getAuthIdentifier())
-            return false;
-
-        return true;
+        return false;
     }
 
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, Enterprise $enterprise): bool
+    public function restore(User $user, Category $category): bool
     {
         return false;
     }
@@ -62,7 +59,7 @@ class EnterprisePolicy
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, Enterprise $enterprise): bool
+    public function forceDelete(User $user, Category $category): bool
     {
         return false;
     }
