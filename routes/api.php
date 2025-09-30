@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\EnterpriseController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\OfferController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,4 +19,6 @@ Route::middleware('api')->group(function () {
     Route::get('offers', [OfferController::class, 'index']);
     Route::post('offers', [OfferController::class, 'store']);
     Route::delete('offers/{offer}', [OfferController::class, 'destroy']);
+
+    Route::get('products', [ProductController::class, 'index']);
 });

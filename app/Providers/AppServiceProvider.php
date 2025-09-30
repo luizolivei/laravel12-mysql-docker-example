@@ -8,6 +8,8 @@ use App\Repositories\EloquentOfferRepository;
 use App\Repositories\EloquentEnterpriseRepository;
 use App\Repositories\OfferRepositoryInterface;
 use App\Repositories\EnterpriseRepositoryInterface;
+use App\Repositories\ProductRepositoryInterface;
+use App\Repositories\EloquentProductRepository;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -17,6 +19,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->app->bind(ProductRepositoryInterface::class, EloquentProductRepository::class);
         $this->app->bind(EnterpriseRepositoryInterface::class, EloquentEnterpriseRepository::class);
         $this->app->bind(OfferRepositoryInterface::class, EloquentOfferRepository::class);
         $this->app->bind(CategoryRepositoryInterface::class, EloquentCategoryRepository::class);
