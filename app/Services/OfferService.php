@@ -44,7 +44,9 @@ class OfferService
 
     public function delete(Offer $offer): void
     {
-        if (Gate::denies('delete', $offer)) {
+        $user = auth()->user();
+
+        if ($user !== null && Gate::forUser($user)->denies('delete', $offer)) {
             throw new AuthorizationException('Você não tem permissão para excluir esta oferta.');
         }
 
